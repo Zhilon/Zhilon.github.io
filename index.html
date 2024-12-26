@@ -66,12 +66,6 @@
         <button class="char-btn" onclick="setChar('う')">う</button>
         <button class="char-btn" onclick="setChar('え')">え</button>
         <button class="char-btn" onclick="setChar('お')">お</button>
-        <button class="char-btn" onclick="setChar('か')">か</button>
-        <button class="char-btn" onclick="setChar('き')">き</button>
-        <button class="char-btn" onclick="setChar('く')">く</button>
-        <button class="char-btn" onclick="setChar('け')">け</button>
-        <button class="char-btn" onclick="setChar('こ')">こ</button>
-        <!-- Add more characters here -->
     </div>
 
     <div id="status">
@@ -91,23 +85,20 @@
         <button onclick="saveCanvas()">保存圖像</button>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script> <!-- TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script>
-        // 五十音字符集
-        const kanaSet = ['あ', 'い', 'う', 'え', 'お', 'か', 'き', 'く', 'け', 'こ'];  
+        const kanaSet = ['あ', 'い', 'う', 'え', 'お'];  
         let currentCharIndex = 0;
         let currentChar = kanaSet[currentCharIndex];
         const canvas = document.getElementById('writing-canvas');
         const ctx = canvas.getContext('2d');
         let drawing = false;
 
-        // 設置當前字符
         function setChar(char) {
             currentChar = char;
             document.getElementById('current-char').innerText = currentChar;
         }
 
-        // 畫布交互處理
         canvas.addEventListener('mousedown', (e) => {
             drawing = true;
             ctx.beginPath();
@@ -123,49 +114,44 @@
 
         canvas.addEventListener('mouseup', () => {
             drawing = false;
-            checkDrawing();
+            recognizeCharacter();
         });
 
         document.getElementById('clear-btn').addEventListener('click', () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            document.getElementById('feedback').innerText = '';
+            document.getElementById('feedback').innerText = '';  
         });
 
-        // 畫布設置
         ctx.lineWidth = 5;
         ctx.lineCap = 'round';
         ctx.strokeStyle = 'black';
 
-        // 更新筆劃寬度
         function updateStrokeWidth(event) {
             ctx.lineWidth = event.target.value;
         }
 
-        // 加載公開的 Kuzushiji-MNIST 模型
         let model;
         async function loadModel() {
-            model = await tf.loadLayersModel('https://raw.githubusercontent.com/tfjs-models/kanji-recognition/master/model.json');  // Kuzushiji-MNIST 模型
+            model = await tf.loadLayersModel('https://raw.githubusercontent.com/shravan-1507/kanji-drawing-recognition/master/model/model.json');
             console.log("Model loaded");
         }
 
-        // 識別手寫字符
         async function recognizeCharacter() {
-            // 獲取畫布圖像數據
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const tensor = tf.browser.fromPixels(imageData)
-                .resizeNearestNeighbor([28, 28])  // 調整為模型所需的尺寸
+                .resizeNearestNeighbor([28, 28])
                 .mean(2)
                 .expandDims(0)
                 .expandDims(-1)
                 .toFloat()
-                .div(tf.scalar(255.0)); // 正規化
+                .div(tf.scalar(255.0));
 
-            // 預測字符
             const prediction = model.predict(tensor);
             const result = prediction.argMax(1).dataSync()[0];
 
-            // 給用戶反饋
             const predictedChar = kanaSet[result];
+            console.log("Predicted character: ", predictedChar);
+
             if (predictedChar === currentChar) {
                 document.getElementById('feedback').innerText = '正確！';
                 document.getElementById('feedback').style.color = 'green';
@@ -174,11 +160,9 @@
                 document.getElementById('feedback').style.color = 'red';
             }
 
-            // 切換至下一個字符
             nextChar();
         }
 
-        // 進度更新
         function nextChar() {
             currentCharIndex++;
             if (currentCharIndex < kanaSet.length) {
@@ -189,25 +173,8 @@
                 currentChar = kanaSet[currentCharIndex];
                 document.getElementById('current-char').innerText = currentChar;
             }
-            updateProgress();
         }
 
-        function updateProgress() {
-            const progress = (currentCharIndex + 1) / kanaSet.length * 100;
-            document.getElementById('progress').style.width = progress + '%';
-            document.getElementById('progress-text').innerText = (currentCharIndex + 1) + ' / ' + kanaSet.length;
-        }
-
-        // 保存畫布圖像
-        function saveCanvas() {
-            const dataUrl = canvas.toDataURL();
-            const link = document.createElement('a');
-            link.href = dataUrl;
-            link.download = 'drawn-character.png';
-            link.click();
-        }
-
-        // 加載模型
         loadModel();
     </script>
 </body>
