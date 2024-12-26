@@ -114,12 +114,12 @@
 
         canvas.addEventListener('mouseup', () => {
             drawing = false;
-            recognizeCharacter();
+            recognizeCharacter();  // 確保這裡有調用識別函數
         });
 
         document.getElementById('clear-btn').addEventListener('click', () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            document.getElementById('feedback').innerText = '';  
+            document.getElementById('feedback').innerText = '';  // 清除反饋
         });
 
         ctx.lineWidth = 5;
@@ -132,8 +132,12 @@
 
         let model;
         async function loadModel() {
-            model = await tf.loadLayersModel('https://raw.githubusercontent.com/shravan-1507/kanji-drawing-recognition/master/model/model.json');
-            console.log("Model loaded");
+            try {
+                model = await tf.loadLayersModel('https://raw.githubusercontent.com/shravan-1507/kanji-drawing-recognition/master/model/model.json');
+                console.log("Model loaded successfully");
+            } catch (error) {
+                console.error("Model loading failed:", error);
+            }
         }
 
         async function recognizeCharacter() {
@@ -149,9 +153,10 @@
             const prediction = model.predict(tensor);
             const result = prediction.argMax(1).dataSync()[0];
 
-            const predictedChar = kanaSet[result];
-            console.log("Predicted character: ", predictedChar);
+            console.log("Predicted class index:", result);  // 打印預測的類別索引
+            console.log("Predicted character:", kanaSet[result]);  // 打印預測的字符
 
+            const predictedChar = kanaSet[result];
             if (predictedChar === currentChar) {
                 document.getElementById('feedback').innerText = '正確！';
                 document.getElementById('feedback').style.color = 'green';
@@ -175,7 +180,7 @@
             }
         }
 
-        loadModel();
+        loadModel();  // 加載模型
     </script>
 </body>
 </html>
