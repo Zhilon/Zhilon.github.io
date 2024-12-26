@@ -44,6 +44,9 @@
             width: 0;
             background-color: #4caf50;
         }
+        .range-container {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -63,6 +66,11 @@
         <button class="char-btn" onclick="setChar('う')">う</button>
         <button class="char-btn" onclick="setChar('え')">え</button>
         <button class="char-btn" onclick="setChar('お')">お</button>
+        <button class="char-btn" onclick="setChar('か')">か</button>
+        <button class="char-btn" onclick="setChar('き')">き</button>
+        <button class="char-btn" onclick="setChar('く')">く</button>
+        <button class="char-btn" onclick="setChar('け')">け</button>
+        <button class="char-btn" onclick="setChar('こ')">こ</button>
         <!-- Add more characters here -->
     </div>
 
@@ -74,10 +82,19 @@
         <p id="progress-text">0 / 5</p>
     </div>
 
+    <div class="range-container">
+        <label for="stroke-width">筆劃寬度：</label>
+        <input type="range" id="stroke-width" min="1" max="10" value="5" onchange="updateStrokeWidth(event)">
+    </div>
+
+    <div class="range-container">
+        <button onclick="saveCanvas()">保存圖像</button>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script> <!-- TensorFlow.js -->
     <script>
-        // JavaScript 應用程式碼
-        const kanaSet = ['あ', 'い', 'う', 'え', 'お'];  // 五十音字符
+        // 五十音字符集
+        const kanaSet = ['あ', 'い', 'う', 'え', 'お', 'か', 'き', 'く', 'け', 'こ'];  
         let currentCharIndex = 0;
         let currentChar = kanaSet[currentCharIndex];
         const canvas = document.getElementById('writing-canvas');
@@ -119,10 +136,15 @@
         ctx.lineCap = 'round';
         ctx.strokeStyle = 'black';
 
-        // 加載模型
+        // 更新筆劃寬度
+        function updateStrokeWidth(event) {
+            ctx.lineWidth = event.target.value;
+        }
+
+        // 加載公開的 Kuzushiji-MNIST 模型
         let model;
         async function loadModel() {
-            model = await tf.loadLayersModel('https://example.com/your-trained-model.json'); // 載入模型
+            model = await tf.loadLayersModel('https://raw.githubusercontent.com/tfjs-models/kanji-recognition/master/model.json');  // Kuzushiji-MNIST 模型
             console.log("Model loaded");
         }
 
@@ -146,8 +168,10 @@
             const predictedChar = kanaSet[result];
             if (predictedChar === currentChar) {
                 document.getElementById('feedback').innerText = '正確！';
+                document.getElementById('feedback').style.color = 'green';
             } else {
                 document.getElementById('feedback').innerText = '請再試一次！';
+                document.getElementById('feedback').style.color = 'red';
             }
 
             // 切換至下一個字符
@@ -174,9 +198,17 @@
             document.getElementById('progress-text').innerText = (currentCharIndex + 1) + ' / ' + kanaSet.length;
         }
 
+        // 保存畫布圖像
+        function saveCanvas() {
+            const dataUrl = canvas.toDataURL();
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = 'drawn-character.png';
+            link.click();
+        }
+
         // 加載模型
         loadModel();
     </script>
 </body>
 </html>
-
