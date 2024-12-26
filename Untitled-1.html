@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日語五十音手寫練習</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        canvas {
+            border: 1px solid black;
+            margin-top: 20px;
+            cursor: crosshair;
+        }
+        #canvas-container {
+            position: relative;
+            display: inline-block;
+        }
+        .char-btn {
+            font-size: 24px;
+            margin: 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        #clear-btn {
+            padding: 10px 20px;
+            margin-top: 20px;
+        }
+        #status {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #f3f3f3;
+            border: 1px solid #ddd;
+        }
+        .progress {
+            height: 100%;
+            width: 0;
+            background-color: #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <h1>日語五十音手寫練習</h1>
+    <p>請在畫布上寫出這個字符:</p>
+    <h2 id="current-char">あ</h2>
+
+    <div id="canvas-container">
+        <canvas id="writing-canvas" width="300" height="300"></canvas>
+    </div>
+    
+    <button id="clear-btn">清除畫布</button>
+    
+    <div>
+        <button class="char-btn" onclick="setChar('あ')">あ</button>
+        <button class="char-btn" onclick="setChar('い')">い</button>
+        <button class="char-btn" onclick="setChar('う')">う</button>
+        <button class="char-btn" onclick="setChar('え')">え</button>
+        <button class="char-btn" onclick="setChar('お')">お</button>
+        <!-- Add more characters here -->
+    </div>
+
+    <div id="status">
+        <p id="feedback"></p>
+        <div class="progress-bar">
+            <div id="progress" class="progress"></div>
+        </div>
+        <p id="progress-text">0 / 5</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script> <!-- TensorFlow.js -->
+    <script src="app.js"></script> <!-- External JavaScript file -->
+</body>
+</html>
