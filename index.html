@@ -120,6 +120,7 @@
         document.getElementById('clear-btn').addEventListener('click', () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             document.getElementById('feedback').innerText = '';  // 清除反饋
+            updateProgressBar(0);  // 清除進度條
         });
 
         ctx.lineWidth = 5;
@@ -178,6 +179,23 @@
                 currentChar = kanaSet[currentCharIndex];
                 document.getElementById('current-char').innerText = currentChar;
             }
+            updateProgressBar(currentCharIndex + 1);
+        }
+
+        function updateProgressBar(completed) {
+            const progressBar = document.getElementById('progress');
+            const progressText = document.getElementById('progress-text');
+            const progressPercent = (completed / kanaSet.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+            progressText.innerText = `${completed} / ${kanaSet.length}`;
+        }
+
+        function saveCanvas() {
+            const dataUrl = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = `${currentChar}_practice.png`;
+            link.click();
         }
 
         loadModel();  // 加載模型
